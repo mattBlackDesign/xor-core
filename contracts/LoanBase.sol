@@ -120,5 +120,6 @@ contract LoanBase is ERC1068Basic {
     interestContract = LoanInterestInterface(_contractAddressesArray[2]);
 		dotContract = ERC827(_contractAddressesArray[3]);
 		tokenContract = ERC827(_contractAddressesArray[4]);
+    emit Begun
 	}
 }

@@ -1,31 +1,30 @@
 pragma solidity ^0.4.21; 
 
-import './MarketInterest.sol';
+import './LoanInterest.sol';
 
 /**
   * @title MarketLend
   * @dev Contract containing business logic pertaining to lenders within a market
  */
  
-contract MarketLend is MarketInterest {
+contract Loan is LoanInterest {
   /*** EVENTS ***/
   /**
    * @dev Triggered when a new lender enters market and offers a loan
-   * @param _address Address of lender
    */
-  event LoanOffered(uint _marketId, address _address, uint _amount);
+  event LoanOffered(address lender, uint _amount);
   
   /**
    * @dev Triggered when a lender who has a refundable excess amount transfers
    *      excess amount back to his address
    */
-   event ExcessTransferred(uint _marketId, address _address, uint _amount);
+   event ExcessTransferred(address lender);
    
    /**
     * @dev Triggered when a lender collects their collectible amount in collection
     *      period
     */
-    event CollectibleCollected(uint _marketId, address _address, uint _amount);
+    event Collected(address lender);
     
   /*** GETTERS ***/    
   /**
