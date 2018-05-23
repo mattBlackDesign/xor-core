@@ -1,34 +1,31 @@
 pragma solidity ^0.4.21;
 
-// import './DOTFactory.sol';
-// import './Strings.sol';
-// import './StringUtils.sol';
 import '@daostack/arc/contracts/VotingMachines/GenesisProtocol.sol';
 
 /**
-  * @title MarketTrustInterface
-  * @dev Interface for XOR Market Trust Contract for calculating trust score
+  * @title LoanTrustInterface
+  * @dev Interface for XOR Loan Trust Contract for calculating trust score
  */
 
-contract ExampleMarketGovernanceInterface {
+contract ExampleLoanGovernanceInterface {
 
-  // Address from MarketCore
+  // Address from LoanCore
   function getDOTTokenAddress() public returns(address);
 }
 
-contract ExampleMarketAvatarInterface {
+contract ExampleLoanAvatarInterface {
 
-  function createAvatar(bytes32 _strMarketId, DAOToken daoToken, Reputation reputation) public returns(address);
+  function createAvatar(bytes32 _randomStr, DAOToken daoToken, Reputation reputation) public returns(address);
 }
 
 
 /**
-  * @title ExampleMarketTrust
-  * @dev Example Market Trust contract for showing trust score programmability.
+  * @title ExampleLoanTrust
+  * @dev Example Loan Trust contract for showing trust score programmability.
   */
-contract ExampleMarketGovernance  {
-  ExampleMarketGovernanceInterface exampleMarketGovernanceContract;
-  ExampleMarketAvatarInterface exampleMarketAvatarContract;
+contract ExampleLoanGovernance  {
+  ExampleLoanGovernanceInterface exampleLoanGovernanceContract;
+  ExampleLoanAvatarInterface exampleLoanAvatarContract;
   GenesisProtocol genesisProtocolContract;
   ExecutableInterface executableInterfaceContract;
   // Avatar avatar;
@@ -38,30 +35,30 @@ contract ExampleMarketGovernance  {
   /**
     * @dev Set the address of the sibling contract that tracks trust score.
    */
-  function setMarketGovernanceContractAddress(address _address) external {
-    exampleMarketGovernanceContract = ExampleMarketGovernanceInterface(_address);
+  function setLoanGovernanceContractAddress(address _address) external {
+    exampleLoanGovernanceContract = ExampleLoanGovernanceInterface(_address);
   }
 
   /**
     * @dev Get the address of the sibling contract that tracks trust score.
    */
-  function getMarketGovernanceContractAddress() external view returns(address) {
-    return address(exampleMarketGovernanceContract);
+  function getLoanGovernanceContractAddress() external view returns(address) {
+    return address(exampleLoanGovernanceContract);
   }
 
 
   /**
     * @dev Set the address of the sibling contract that tracks trust score.
    */
-  function setMarketAvatarContractAddress(address _address) external {
-    exampleMarketAvatarContract = ExampleMarketAvatarInterface(_address);
+  function setLoanAvatarContractAddress(address _address) external {
+    exampleLoanAvatarContract = ExampleLoanAvatarInterface(_address);
   }
 
   /**
     * @dev Get the address of the sibling contract that tracks trust score.
    */
-  function getMarketAvatarContractAddress() external view returns(address) {
-    return address(exampleMarketAvatarContract);
+  function getLoanAvatarContractAddress() external view returns(address) {
+    return address(exampleLoanAvatarContract);
   }
 
   function getGenesisProtocolContractAddress() external view returns(address) {
@@ -69,7 +66,7 @@ contract ExampleMarketGovernance  {
   }
 
   function createGovernance() public {
-    StandardToken dotToken = StandardToken(exampleMarketGovernanceContract.getDOTTokenAddress());
+    StandardToken dotToken = StandardToken(exampleLoanGovernanceContract.getDOTTokenAddress());
 
     genesisProtocolContract = new GenesisProtocol(dotToken);
 
@@ -90,8 +87,8 @@ contract ExampleMarketGovernance  {
     genesisProtocolContract.setParameters(params);
     executableInterfaceContract = ExecutableInterface(address(this));
     Reputation reputation = new Reputation();
-    DAOToken daoToken = DAOToken(exampleMarketGovernanceContract.getDOTTokenAddress(_marketId));
-    avatarAddress = exampleMarketAvatarContract.createAvatar(_strMarketId, daoToken, reputation);
+    DAOToken daoToken = DAOToken(exampleLoanGovernanceContract.getDOTTokenAddress());
+    avatarAddress = exampleLoanAvatarContract.createAvatar(keccak256(address(exampleLoanGovernanceContract)), daoToken, reputation);
   }
 
   function propose(uint _numOfChoices, address _proposer) public returns(bytes32) {
