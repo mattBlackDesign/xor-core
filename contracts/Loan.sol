@@ -39,13 +39,13 @@ contract Loan is LoanInterest {
    * @dev Triggered when a lender who has a refundable excess amount transfers
    *      excess amount back to his address
    */
-   event ExcessTransferred(address _address, uint _amount);
+  event ExcessTransferred(address _address, uint _amount);
    
    /**
     * @dev Triggered when a lender collects their collectible amount in collection
     *      period
     */
-    event CollectibleCollected(address _address, uint _amount);
+  event CollectibleCollected(address _address, uint _amount);
     
   /*** GETTERS ***/    
   /**
@@ -56,9 +56,9 @@ contract Loan is LoanInterest {
   returns(uint, uint, uint, uint, uint) {
     uint actualOffer = actualLenderOffer(_lender);
     return (
-      getLenderOffer(_lender), 
+      lenderOffers[_lender], 
       actualOffer, 
-      getLenderCollected(_lender), 
+      lenderCollected[_lender], 
       getLenderCollectible(_lender),
       actualOffer.percent(getLoanPool(), 5)
     );
@@ -69,11 +69,11 @@ contract Loan is LoanInterest {
    *      pool (when total amount offered > total amount requested)
    */
   function calculateExcess(address _address) private view returns (uint) {
-    uint lenderOffer = getLenderOffer(_address);
+    uint lenderOffer = lenderOffers[_address];
     if (totalOffered > totalRequested) {
       uint curValue = 0;
-      for (uint i = 0; i < getLenderCount(); i++) {
-        if (getLenderAddress(i) == _address) {
+      for (uint i = 0; i < lenders.length; i++) {
+        if (lenders[i] == _address) {
           if (curValue <= totalRequested) {
             uint newValue = curValue.add(lenderOffer);
             if (newValue > totalRequested) {
@@ -85,7 +85,7 @@ contract Loan is LoanInterest {
           }
           break;
         }
-        curValue = curValue.add(getLenderOffer(getLenderAddress(i)));
+        curValue = curValue.add(lenderOffers[lenders[i]]);
       }
     } else {
       return 0;
@@ -102,7 +102,7 @@ contract Loan is LoanInterest {
    *         ONE lender in a Market instance
    */ 
   function actualLenderOffer(address _address) public view returns (uint) {
-    return getLenderOffer(_address).sub(calculateExcess(_address));
+    return lenderOffers[_address].sub(calculateExcess(_address));
   }
 
   /**
@@ -110,26 +110,16 @@ contract Loan is LoanInterest {
    *      loan. Includes principal + interest - defaults.
    */
   function getLenderCollectible(address _address) public view returns (uint) {
-    return actualLenderOffer(_address).mul(getMarketCurRepaid()).div(getLoanPool());
+    return actualLenderOffer(_address).mul(curRepaid).div(getLoanPool());
   }
 
-  function getLenderCount() public view returns (uint) {
-    return lenders.length;
-  }
-
-  /**
-   * @dev Retrieves address of a lender from their lenderID in market
-   */
-  function getLenderAddress(uint _lenderId) public view returns (address) {
-    return lenders[_lenderId];
-  }
   
   /**
    * @dev Returns true if given individual is a lender (after request period concludes 
    *      and excess lenders are removed), false otherwise
    */
   function lender(address _address) public view returns (bool) {
-    if ((checkRequestPeriod() && getLenderOffer(_address) > 0) ||
+    if ((checkRequestPeriod() && lenderOffers[_address] > 0) ||
       actualLenderOffer(_address) > 0) {
       return true;
     } else {
@@ -142,8 +132,8 @@ contract Loan is LoanInterest {
    *      amount
    */
   function collected(address _address) public view returns (bool) {
-    if (getLenderCollectible(_address) == getLenderCollected(_address) &&
-      getLenderCollected(_address) != 0) {
+    if (getLenderCollectible(_address) == lenderCollected[_address] &&
+      lenderCollected[_address] != 0) {
       return true;
     } else {
       return false;
@@ -181,7 +171,7 @@ contract Loan is LoanInterest {
     isLender(msg.sender)
     isAfterRequestPeriod() 
   {
-    require(getLenderOffer(msg.sender) > 0);
+    require(lenderOffers[msg.sender] > 0);
     uint excessAmt = calculateExcess(msg.sender);
     msg.sender.transfer(excessAmt);
     emit ExcessTransferred(msg.sender, excessAmt);
@@ -261,10 +251,10 @@ contract Loan is LoanInterest {
   {
     uint actualRequest = actualBorrowerRequest(_borrower);
     return (
-      getBorrowerRequest(_borrower),
+      borrowerRequests[_borrower],
       actualRequest,
-      getBorrowerWithdrawn(_borrower),
-      getBorrowerRepaid(_borrower),
+      borrowerWithdrawn[_borrower],
+      borrowerRepaid[_borrower],
       actualRequest.percent(getLoanPool(), 5)
     );
   }
@@ -283,14 +273,14 @@ contract Loan is LoanInterest {
     view
     returns(uint) 
   {
-    uint borrowerRequest = getBorrowerRequest(_address);
+    uint borrowerRequest = borrowerRequests[_address];
     if (totalOffered >= totalRequested) {
-      return getBorrowerRequest(_address);
+      return borrowerRequests[_address];
     } else {
       uint curValue = 0;
       uint requestValue = 0;
-      for(uint i = 0; i < getBorrowerCount(); i++) {
-        if (getBorrowerAddress(i) == _address) {
+      for(uint i = 0; i < borrowers.length; i++) {
+        if (borrowers[i] == _address) {
           if (curValue < totalOffered) {
             uint newValue = curValue.add(borrowerRequest);
             if (newValue > totalOffered) {
@@ -302,7 +292,7 @@ contract Loan is LoanInterest {
           }
           break;
         }
-        curValue = curValue.add(getBorrowerRequest(getBorrowerAddress(i)));
+        curValue = curValue.add(borrowerRequests[borrowers[i]]);
       }
       return requestValue;
     }
@@ -324,8 +314,8 @@ contract Loan is LoanInterest {
    */
   function getBorrowerIndex(address _borrowerAddress) public view returns (uint) {
     uint index = 0;
-    for (uint i = 0; i < getBorrowerCount(); i++) {
-      if (getBorrowerAddress(i) == _borrowerAddress) {
+    for (uint i = 0; i < borrowers.length; i++) {
+      if (borrowers[i] == _borrowerAddress) {
         index = i;
       }
     }
@@ -333,25 +323,11 @@ contract Loan is LoanInterest {
   }
 
   /**
-   * @dev Fetches the number of registered borrowers in a certain market
-   */
-  function getBorrowerCount() public view returns (uint) {
-    return borrowers.length;
-  }
-
-  /**
-   * @dev Retrieves address of a borrower from their borrowerID in market
-   */
-  function getBorrowerAddress(uint _borrowerId) public view returns (address) {
-    return borrowers[_borrowerId];
-  }
-
-  /**
    * @dev Returns true if given individual is a borrower (after request period concludes 
    *      and excess borrowers are removed), false otherwise
    */
   function borrower(address _address) public view returns (bool) {
-    if ((checkRequestPeriod() && getBorrowerRequest(_address) > 0) || 
+    if ((checkRequestPeriod() && borrowerRequests[_address] > 0) || 
       actualBorrowerRequest(_address) > 0) {
       return true;
     } else {
@@ -364,8 +340,8 @@ contract Loan is LoanInterest {
    *      loan request, false otherwise
    */
   function withdrawn(address _address) public view returns (bool) {
-    if (getBorrowerRequest(_address) == getBorrowerWithdrawn(_address)
-      && getBorrowerWithdrawn(_address) > 0) {
+    if (borrowerRequests[_address] == borrowerWithdrawn[_address]
+      && borrowerWithdrawn[_address] > 0) {
       return true;
     } else {
       return false;
@@ -379,7 +355,7 @@ contract Loan is LoanInterest {
   function repaid(address _address) public view returns (bool) {
     uint actualRequest = actualBorrowerRequest(_address);
     uint expectedRepayment = actualRequest.add(getInterest(_address, actualRequest));
-    if (getBorrowerRepaid(msg.sender) == expectedRepayment) {
+    if (borrowerRepaid[msg.sender] == expectedRepayment) {
       return true;
     } else {
       return false;
