@@ -16,7 +16,7 @@ contract Loan is LoanInterest {
    *                               component contracts
    *                               [governance, trust, interest, dotAddress, tokenAddress]
    */
-  function Loan (uint[] _periodArray, address[] _contractAddressesArray) public {
+  function Loan(uint[] _periodArray, address[] _contractAddressesArray) public {
     requestPeriod = _periodArray[0];
     loanPeriod = _periodArray[1];
     settlementPeriod = _periodArray[2];
@@ -101,16 +101,16 @@ contract Loan is LoanInterest {
    * @notice This value should only differ from return value of getLenderOffer() for 
    *         ONE lender in a Market instance
    */ 
-  function actualLenderOffer(address _address) public view returns (uint) {
-    return lenderOffers[_address].sub(calculateExcess(_address));
+  function actualLenderOffer(address _lender) public view returns (uint) {
+    return lenderOffers[_lender].sub(calculateExcess(_lender));
   }
 
   /**
    * @dev Retrieves the collectible amount for each lender from their investment/
    *      loan. Includes principal + interest - defaults.
    */
-  function getLenderCollectible(address _address) public view returns (uint) {
-    return actualLenderOffer(_address).mul(curRepaid).div(getLoanPool());
+  function getLenderCollectible(address _lender) public view returns (uint) {
+    return actualLenderOffer(_lender).mul(curRepaid).div(getLoanPool());
   }
 
   
@@ -118,9 +118,9 @@ contract Loan is LoanInterest {
    * @dev Returns true if given individual is a lender (after request period concludes 
    *      and excess lenders are removed), false otherwise
    */
-  function lender(address _address) public view returns (bool) {
-    if ((checkRequestPeriod() && lenderOffers[_address] > 0) ||
-      actualLenderOffer(_address) > 0) {
+  function lender(address _lender) public view returns (bool) {
+    if ((checkRequestPeriod() && lenderOffers[_lender] > 0) ||
+      actualLenderOffer(_lender) > 0) {
       return true;
     } else {
       return false;
@@ -131,9 +131,9 @@ contract Loan is LoanInterest {
    * @dev Returns true if given lender has collected their collectible
    *      amount
    */
-  function collected(address _address) public view returns (bool) {
-    if (getLenderCollectible(_address) == lenderCollected[_address] &&
-      lenderCollected[_address] != 0) {
+  function collected(address _lender) public view returns (bool) {
+    if (getLenderCollectible(_lender) == lenderCollected[_lender] &&
+      lenderCollected[_lender] != 0) {
       return true;
     } else {
       return false;
@@ -211,16 +211,16 @@ contract Loan is LoanInterest {
   /**
    * @dev Throws if lender being checked has not collected their collectible amount
    */
-  modifier hasCollected(address _address) {
-    require (collected(_address));
+  modifier hasCollected(address _lender) {
+    require (collected(_lender));
     _;
   }
 
   /**
    * @dev Throws if lender being checked has collected their collectible amount
    */
-  modifier hasNotCollected(address _address) {
-    require (!collected(_address));
+  modifier hasNotCollected(address _lender) {
+    require (!collected(_lender));
     _;
   }
 
@@ -265,14 +265,14 @@ contract Loan is LoanInterest {
    * @notice This value should only differ from return value of getBorrowerRequest() for 
    *         ONE borrower in a Market instance
    */ 
-  function actualBorrowerRequest(address _address) 
+  function actualBorrowerRequest(address _borrower)
     public
     view
     returns(uint) 
   {
-    uint borrowerRequest = borrowerRequests[_address];
+    uint borrowerRequest = borrowerRequests[_borrower];
     if (totalOffered >= totalRequested) {
-      return borrowerRequests[_address];
+      return borrowerRequests[_borrower];
     } else {
       uint curValue = 0;
       uint requestValue = 0;
@@ -299,9 +299,9 @@ contract Loan is LoanInterest {
    * @dev Fetches the total size of repayment a borrower has to make to cover
    *      principal + interest
    */
-  function getTotalRepayment(address _address) public view returns (uint) {
-    uint request = actualBorrowerRequest(_address);
-    return request.add(getInterest(_address, request));
+  function getTotalRepayment(address _borrower) public view returns (uint) {
+    uint request = actualBorrowerRequest(_borrower);
+    return request.add(getInterest(_borrower, request));
   }
   
   /**
@@ -309,10 +309,10 @@ contract Loan is LoanInterest {
    *      (from their address)
    * NOTE: This function currently not used anywhere
    */
-  function getBorrowerIndex(address _borrowerAddress) public view returns (uint) {
+  function getBorrowerIndex(address _borrower) public view returns (uint) {
     uint index = 0;
     for (uint i = 0; i < borrowers.length; i++) {
-      if (borrowers[i] == _borrowerAddress) {
+      if (borrowers[i] == _borrower) {
         index = i;
       }
     }
@@ -323,9 +323,9 @@ contract Loan is LoanInterest {
    * @dev Returns true if given individual is a borrower (after request period concludes 
    *      and excess borrowers are removed), false otherwise
    */
-  function borrower(address _address) public view returns (bool) {
-    if ((checkRequestPeriod() && borrowerRequests[_address] > 0) || 
-      actualBorrowerRequest(_address) > 0) {
+  function borrower(address _borrower) public view returns (bool) {
+    if ((checkRequestPeriod() && borrowerRequests[_borrower] > 0) ||
+      actualBorrowerRequest(_borrower) > 0) {
       return true;
     } else {
       return false;
@@ -336,9 +336,9 @@ contract Loan is LoanInterest {
    * @dev Returns true if given borrower has withdrawn the entire amount of their
    *      loan request, false otherwise
    */
-  function withdrawn(address _address) public view returns (bool) {
-    if (borrowerRequests[_address] == borrowerWithdrawn[_address]
-      && borrowerWithdrawn[_address] > 0) {
+  function withdrawn(address _borrower) public view returns (bool) {
+    if (borrowerRequests[_borrower] == borrowerWithdrawn[_borrower]
+      && borrowerWithdrawn[_borrower] > 0) {
       return true;
     } else {
       return false;
@@ -349,9 +349,9 @@ contract Loan is LoanInterest {
    * @dev Returns true if a borrower has repaid his loan in the market, false
    * otherwise
    */
-  function repaid(address _address) public view returns (bool) {
-    uint actualRequest = actualBorrowerRequest(_address);
-    uint expectedRepayment = actualRequest.add(getInterest(_address, actualRequest));
+  function repaid(address _borrower) public view returns (bool) {
+    uint actualRequest = actualBorrowerRequest(_borrower);
+    uint expectedRepayment = actualRequest.add(getInterest(_borrower, actualRequest));
     if (borrowerRepaid[msg.sender] == expectedRepayment) {
       return true;
     } else {
@@ -433,16 +433,16 @@ contract Loan is LoanInterest {
   /**
    * @dev Throws if borrower being checked has not repaid their loan principal/interest
    */
-  modifier hasRepaid(address _address) {
-    require(repaid(_address));
+  modifier hasRepaid(address _borrower) {
+    require(repaid(_borrower));
     _;
   }
   
   /**
    * @dev Throws if borrower being checked has repaid their loan principal/interest
    */
-  modifier hasNotRepaid(address _address) {
-    require(!repaid(_address));
+  modifier hasNotRepaid(address _borrower) {
+    require(!repaid(_borrower));
     _;
   }
   
@@ -450,8 +450,8 @@ contract Loan is LoanInterest {
    * @dev Throws if borrower being checked has not withdrawn the full amount
    *      of their loan request
    */
-  modifier hasWithdrawn(address _address) {
-    require(withdrawn(_address));
+  modifier hasWithdrawn(address _borrower) {
+    require(withdrawn(_borrower));
     _;
   }
 
@@ -459,8 +459,8 @@ contract Loan is LoanInterest {
    * @dev Throws if borrower being checked has withdrawn the full amount
    *      of their loan request
    */
-  modifier hasNotWithdrawn(address _address) {
-    require(!withdrawn(_address));
+  modifier hasNotWithdrawn(address _borrower) {
+    require(!withdrawn(_borrower));
     _;
   }
 }
