@@ -39,13 +39,13 @@ contract Loan is LoanInterest {
    * @dev Triggered when a lender who has a refundable excess amount transfers
    *      excess amount back to his address
    */
-   event ExcessTransferred(address lender, uint amount);
+  event ExcessTransferred(address lender, uint amount);
    
    /**
     * @dev Triggered when a lender collects their collectible amount in collection
     *      period
     */
-    event Withdrawn(address lender, uint amount);
+  event Withdrawn(address lender, uint amount);
     
   /*** GETTERS ***/    
   /**
@@ -277,7 +277,7 @@ contract Loan is LoanInterest {
       uint curValue = 0;
       uint requestValue = 0;
       for(uint i = 0; i < borrowers.length; i++) {
-        if (borrowers[i] == _address) {
+        if (borrowers[i] == _borrower) {
           if (curValue < totalOffered) {
             uint newValue = curValue.add(borrowerRequest);
             if (newValue > totalOffered) {
@@ -336,7 +336,7 @@ contract Loan is LoanInterest {
    * @dev Returns true if given borrower has withdrawn the entire amount of their
    *      loan request, false otherwise
    */
-  function withdrawn(address _borrower) public view returns (bool) {
+  function accepted(address _borrower) public view returns (bool) {
     if (borrowerRequests[_borrower] == borrowerAccepted[_borrower]
       && borrowerAccepted[_borrower] > 0) {
       return true;
@@ -386,7 +386,7 @@ contract Loan is LoanInterest {
   function accept() public returns (bool success) {
     require(checkLoanPeriod());
     require(borrower(msg.sender));
-    require(!withdrawn(_borrower));
+    require(!withdrawn(msg.sender));
     uint request = actualBorrowerRequest(msg.sender);
     msg.sender.transfer(request);
     borrowerAccepted[msg.sender] = request;
