@@ -5,8 +5,6 @@ import './StringUtils.sol';
 
 
 contract DOTFactory {
-	ExampleMarketTokenInterface marketTokenContract;
-
 	mapping(address => address[]) public created;
 	mapping(address => bool) public isDOT;
 

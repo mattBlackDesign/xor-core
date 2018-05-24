@@ -14,6 +14,6 @@ contract LoanInterest is LoanTrust {
   * @param _amt The amount being requested by borrower in current market
   */
   function getInterest(address _address, uint _amt) public view returns (uint) {
-    return interestInstanceContract.getInterest(_address, _amt);
+    return interestContract.getInterest(_address, _amt);
   }
 }
