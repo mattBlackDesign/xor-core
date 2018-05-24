@@ -16,7 +16,7 @@ contract Loan is LoanInterest {
    *                               component contracts
    *                               [governance, trust, interest, dotAddress, tokenAddress]
    */
-  function Loan(uint[] _periodArray, address[] _contractAddressesArray) public {
+  function Loan (uint[] _periodArray, address[] _contractAddressesArray) public {
     requestPeriod = _periodArray[0];
     loanPeriod = _periodArray[1];
     settlementPeriod = _periodArray[2];
@@ -189,7 +189,7 @@ contract Loan is LoanInterest {
     uint collectibleAmt = getLenderCollectible(msg.sender);
     lenderCollected[msg.sender] = collectibleAmt;
     msg.sender.transfer(collectibleAmt);
-    emit CollectibleCollected(msg.sender, collectibleAmt);
+    emit Collected(msg.sender, collectibleAmt);
   }
   
   /*** MODIFIERS ***/
@@ -224,8 +224,6 @@ contract Loan is LoanInterest {
     require (!collected(_address));
     _;
   }
-}
-
 
 
   /*** EVENTS ***/

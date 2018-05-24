@@ -1,5 +1,5 @@
 import './ERC1068Basic.sol';
-import 'openzeppelin-solidity/contracts/token/ERC827/ERC827.sol'
+import 'openzeppelin-solidity/contracts/token/ERC827/ERC827.sol';
 
 contract LoanGovernanceInterface {
   function createGovernance();
@@ -109,9 +109,7 @@ contract LoanBase is ERC1068Basic {
    *      available for loans. Takes the minimum of total amount requested by
    *      borrowers and total amount offered by lenders
    */
-  function getLoanPool() public view validMarketId()
-    returns (uint)
-  {
+  function getLoanPool() public view returns (uint) {
     if (totalOffered >= totalRequested) {
       return totalRequested;
     } else {

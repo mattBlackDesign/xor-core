@@ -14,7 +14,7 @@ contract LoanTrust is LoanTime {
   * @param _address Address of individual being checked
   */ 
   function getTrustScore(address _address) external view returns (uint) {
-  	return trustInstanceContract.getTrustScore(_address);
+  	return trustContract.getTrustScore(_address);
   }
 
   // NOTE: Possible future additions: modifiers for min trust score?

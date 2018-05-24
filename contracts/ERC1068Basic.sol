@@ -1,6 +1,6 @@
 pragma solidity ^0.4.21;
 
-import './ERC1068.sol'
+import './ERC1068.sol';
 
 contract ERC1068Basic is ERC1068 {
   /// @notice returns the amount of tokens that borrower is asking for.
