@@ -33,19 +33,19 @@ contract Loan is LoanInterest {
    * @dev Triggered when a new lender enters market and offers a loan
    * @param _address Address of lender
    */
-  event LoanOffered(address _address, uint _amount);
+  event LoanOffered(address lender, uint amount);
   
   /**
    * @dev Triggered when a lender who has a refundable excess amount transfers
    *      excess amount back to his address
    */
-   event ExcessTransferred(address _address, uint _amount);
+   event ExcessTransferred(address lender, uint amount);
    
    /**
     * @dev Triggered when a lender collects their collectible amount in collection
     *      period
     */
-    event CollectibleCollected(address _address, uint _amount);
+    event Collected(address lender, uint amount);
     
   /*** GETTERS ***/    
   /**
@@ -68,12 +68,12 @@ contract Loan is LoanInterest {
    * @dev Calculates any excess lender funds that are not part of the market
    *      pool (when total amount offered > total amount requested)
    */
-  function calculateExcess(address _address) private view returns (uint) {
-    uint lenderOffer = getLenderOffer(_address);
+  function calculateExcess(address _lender) private view returns (uint) {
+    uint lenderOffer = getLenderOffer(_lender);
     if (totalOffered > totalRequested) {
       uint curValue = 0;
       for (uint i = 0; i < getLenderCount(); i++) {
-        if (getLenderAddress(i) == _address) {
+        if (getLenderAddress(i) == _lender) {
           if (curValue <= totalRequested) {
             uint newValue = curValue.add(lenderOffer);
             if (newValue > totalRequested) {
@@ -242,12 +242,12 @@ contract Loan is LoanInterest {
   /**
    * @dev Triggered when a borrower enters market and requests a loan
    */
-  event LoanRequested(address _address, uint _amount);
+  event LoanRequested(address borrower, uint amount);
 
   /**
    * @dev Triggered when a borrower has repaid his loan
    */
-  event LoanRepaid(address _address, uint _amount);
+  event LoanRepaid(address borrower, uint amount);
   
   /*** GETTERS ***/
   /**

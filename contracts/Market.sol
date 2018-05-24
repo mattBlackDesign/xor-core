@@ -45,7 +45,6 @@ contract MarketBase is Destructible {
     // is the uint mapped to each Version. Initial version is 0. 
 
     mapping(uint => address) loans;
-    uint loanCount;
   }
 
   /*** STORAGE ***/
@@ -82,7 +81,8 @@ contract MarketBase is Destructible {
       _contractAddressesArray.length == 3);
     uint curMarketVer = 0;
     uint newMarketId = markets.push(Market(block.timestamp, curMarketVer)) - 1;
-    loanFactoryContract.createLoan(_periodArray, _contractAddressesArray);
+    loans[curMarketVer] = loanFactoryContract.
+      createLoan(_periodArray, _contractAddressesArray);
     marketIndexToMaker[newMarketId] = msg.sender;
     emit NewMarket(newMarketId);
     return newMarketId;
