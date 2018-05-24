@@ -148,13 +148,12 @@ contract Loan is LoanInterest {
    *         the request period, they may not necessarily remain a lender (and
    *         thus have their funds returned) if total amount offered > total amount 
    *         requested
+   * Previously offerLoan()
    */ 
-  function offerLoan()
-    external
-    payable
-    isRequestPeriod()
-    isNotLender(msg.sender)
-  {
+  function fund(address _lender, uint256 _capital) public returns (bool success) {
+    require(checkRequestPeriod());
+    require(!lender(_lender));
+
     lenders.push(msg.sender);
     lenderOffers[msg.sender] = msg.value;
     totalOffered = totalOffered.add(msg.value);
