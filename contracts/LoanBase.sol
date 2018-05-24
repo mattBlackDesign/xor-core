@@ -102,24 +102,20 @@ contract LoanBase is ERC1068Basic {
   // NOTE: Currently, lenders must collect their entire collectible amount
   //       at once. In future, there are plans to allow lenders to only collect part of 
   //       collectible amount at any one time
-  mapping (address => uint) lenderCollected; 
+  mapping (address => uint) lenderCollected;
 
-    /** 
-   * @param _periodArray 
-            [request, loan, settlement]
-   * @param _contractAddressesArray An array containing the addresses of instance
-   *                               component contracts
-   *                               [governance, trust, interest, dotAddress, tokenAddress]
+  /**
+   * @dev A public function that retrieves the size of the getMarketPool actually
+   *      available for loans. Takes the minimum of total amount requested by
+   *      borrowers and total amount offered by lenders
    */
-	function LoanBase(uint[] _periodArray, address[] _contractAddressesArray) public {
-    requestPeriod = _periodArray[0];
-    loanPeriod = _periodArray[1];
-    settlementPeriod = _periodArray[2];
-    governanceContract = LoanGovernanceInterface(_contractAddressesArray[0]);
-    trustContract = LoanTrustInterface(_contractAddressesArray[1]);
-    interestContract = LoanInterestInterface(_contractAddressesArray[2]);
-		dotContract = ERC827(_contractAddressesArray[3]);
-		tokenContract = ERC827(_contractAddressesArray[4]);
-    emit Begun
-	}
+  function getLoanPool() public view validMarketId()
+    returns (uint)
+  {
+    if (totalOffered >= totalRequested) {
+      return totalRequested;
+    } else {
+      return totalOffered;
+    }
+  }
 }
