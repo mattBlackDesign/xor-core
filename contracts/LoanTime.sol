@@ -128,8 +128,8 @@ contract LoanTime is LoanIdentity {
   /**
    * @dev Throws if loan is not currently in "Collection Period"
    */
-  modifier isCollectionPeriod() {
-    require(checkCollectionPeriod());
+  modifier isWithdrawPeriod() {
+    require(checkWithdrawPeriod());
     _;
   }
   

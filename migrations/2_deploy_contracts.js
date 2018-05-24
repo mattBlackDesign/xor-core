@@ -1,4 +1,4 @@
-var MarketCore = artifacts.require("./MarketCore.sol");
+var Market = artifacts.require("./Market.sol");
 
 var ExampleMarketTrust = artifacts.require("xor-external-contract-examples/contracts/ExampleMarketTrust.sol");
 var ExampleMarketInterest = artifacts.require("xor-external-contract-examples/contracts/ExampleMarketInterest.sol");
@@ -11,18 +11,18 @@ var StringUtils = artifacts.require("./StringUtils.sol");
 module.exports = function(deployer) {
   deployer.then(async () => {
     await deployer.deploy(StringUtils);
-    await deployer.deploy(MarketCore);
+    await deployer.deploy(Market);
     var stringUtils = await StringUtils.deployed();
-    var marketCore = await MarketCore.deployed();
+    var market = await Market.deployed();
     await deployer.link(StringUtils, DOTFactory);
     await deployer.deploy(LoanFactory);
     await deployer.deploy(DOTFactory);
     var loanFactory = await LoanFactory.deployed();
     var dotFactory = await DOTFactory.deployed();
 
-    marketCore.setLoanFactoryContractAddress(loanFactory.address);
-    marketCore.setMarketTokenContractAddress(dotFactory.address);
-    dotFactory.setMarketTokenContractAddress(marketCore.address);
+    market.setLoanFactoryContractAddress(loanFactory.address);
+    market.setMarketTokenContractAddress(dotFactory.address);
+    dotFactory.setMarketTokenContractAddress(market.address);
 
     await deployer.deploy(ExampleMarketGovernance);
     var exampleMarketGovernance = await ExampleMarketGovernance.deployed();
@@ -31,7 +31,7 @@ module.exports = function(deployer) {
     var exampleMarketAvatar = await ExampleMarketAvatar.deployed();
 
     exampleMarketGovernance.setMarketAvatarContractAddress(exampleMarketAvatar.address);
-    exampleMarketGovernance.setMarketGovernanceContractAddress(marketCore.address);
+    exampleMarketGovernance.setMarketGovernanceContractAddress(market.address);
 
     await deployer.deploy(ExampleMarketTrust);
     await deployer.deploy(ExampleMarketInterest);
@@ -45,6 +45,6 @@ module.exports = function(deployer) {
       exmapleMarketInterest.address
     ]
 
-    marketCore.createMarket(5, 5, 5, arrContractAddresses);
+    market.createMarket([5, 5, 5], arrContractAddresses);
   });
 };
