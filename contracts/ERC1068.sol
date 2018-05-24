@@ -29,5 +29,9 @@ contract ERC1068 {
   /// @notice return the loan current stage. (i.e. Summer wants contribute in Morty loan, but first need see if the loan is in funding stage).
   /// @dev return loan current stage.
   /// @return current stage
+  /// 1: request period
+  /// 2: loan period
+  /// 3: settlement period
+  /// 4: collection period
   function stage() public view returns (uint8);
 }
