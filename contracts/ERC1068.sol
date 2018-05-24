@@ -10,7 +10,6 @@ contract ERC1068 {
 
   /// @notice retire capital from the loan. (i.e. borrower Morty has already paid back his due and investor Rick withdraw his loot).
   /// @dev Needs the token ERC20 functions to transfer _capital to msg.sender. This function will trigger Withdraw event.
-  /// @to where the funds go.
   /// @param _capital is the amount of token to retire.
   function withdraw(address _to, uint256 _capital) public returns (bool success);
 
@@ -22,7 +21,7 @@ contract ERC1068 {
   /// @notice pay back the due by borrower. (i.e. Morty send _payment Galactic Federation tokens to the contract,
   ///         the contract distributes the _paymen to loan investors prorated by the amount each contributed).
   /// @dev Needs the token ERC20 functions to transfer _payment. This function will trigger PayBack event.
-  /// @param _who is who send the funds to payback.
+  /// @param _from is who send the funds to payback.
   /// @param _payment is the amount of token to payback.
   function payback(address _from, uint256 _payment) public returns (bool success);
 

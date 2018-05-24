@@ -31,7 +31,6 @@ contract Loan is LoanInterest {
   /*** EVENTS ***/
   /**
    * @dev Triggered when a new lender enters market and offers a loan
-   * @param _address Address of lender
    */
   event LoanOffered(address lender, uint amount);
   
@@ -386,7 +385,7 @@ contract Loan is LoanInterest {
   function accept() public returns (bool success) {
     require(checkLoanPeriod());
     require(borrower(msg.sender));
-    require(!withdrawn(msg.sender));
+    require(!accepted(msg.sender));
     uint request = actualBorrowerRequest(msg.sender);
     msg.sender.transfer(request);
     borrowerAccepted[msg.sender] = request;
@@ -446,8 +445,8 @@ contract Loan is LoanInterest {
    * @dev Throws if borrower being checked has not withdrawn the full amount
    *      of their loan request
    */
-  modifier hasWithdrawn(address _borrower) {
-    require(withdrawn(_borrower));
+  modifier hasAccepted(address _borrower) {
+    require(accepted(_borrower));
     _;
   }
 
@@ -455,8 +454,8 @@ contract Loan is LoanInterest {
    * @dev Throws if borrower being checked has withdrawn the full amount
    *      of their loan request
    */
-  modifier hasNotWithdrawn(address _borrower) {
-    require(!withdrawn(_borrower));
+  modifier hasNotAccepted(address _borrower) {
+    require(!accepted(_borrower));
     _;
   }
 }
