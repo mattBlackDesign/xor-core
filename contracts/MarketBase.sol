@@ -5,9 +5,14 @@ import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
 
 contract LoanFactoryInterface {
   // returns address of loan created (the contract)
-  function createLoan(uint[] _periodArray, 
-    address[] _contractAddressesArray) public returns(address);
+  function createLoan(uint[] _periodArray, address[] _contractAddressesArray) public returns(address);
 }
+
+contract DOTFactoryInterface {
+  function createDOT(string _name, string _symbol, uint _cap) public returns(address);
+  function getStrId(uint _str) public returns(bytes32);
+}
+
 /**
   * @title MarketBase
   * @dev Base contract for XOR Markets. Holds all common structs, events and base variables
@@ -40,6 +45,7 @@ contract MarketBase is Destructible {
     // is the uint mapped to each Version. Initial version is 0. 
 
     mapping(uint => address) loans;
+    uint loanCount;
   }
 
   /*** STORAGE ***/
@@ -70,8 +76,7 @@ contract MarketBase is Destructible {
    * @return MarketId of Market created, which is index of created Market within markets
    *         array
    */
-  function createMarket(uint[] _periodArray, 
-    address[] _contractAddressesArray) public returns (uint) {
+  function createMarket(uint[] _periodArray, address[] _contractAddressesArray) public returns (uint) {
     require(_periodArray.length == 3 && _periodArray[0] > 0
       && _periodArray[1] > 0 && _periodArray[2] > 0 &&
       _contractAddressesArray.length == 3);
