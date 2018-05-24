@@ -1,4 +1,4 @@
-import './ERC1068Basic.sol';
+import './ERC1068.sol';
 import 'openzeppelin-solidity/contracts/token/ERC827/ERC827.sol';
 
 contract LoanGovernanceInterface {
@@ -35,7 +35,7 @@ contract LoanInterestInterface {
 }
 
 
-contract LoanBase is ERC1068Basic {
+contract LoanBase is ERC1068 {
 	ERC827 dotContract;
 	ERC827 tokenContract;
 
@@ -93,16 +93,16 @@ contract LoanBase is ERC1068Basic {
   mapping (address => uint) borrowerRequests;
   
   // Mapping of each borrower to amount they have withdrawn from their loan (in Wei)
-  mapping (address => uint) borrowerWithdrawn; 
+  mapping (address => uint) borrowerAccepted; 
   
   // Mapping of each borrower to amount of loan they have repaid (in Wei)
   mapping (address => uint) borrowerRepaid;
 
-  // Mapping of each lender to amount that they have collected back from loans (in Wei)
+  // Mapping of each lender to amount that they have withdrawn back from loans (in Wei)
   // NOTE: Currently, lenders must collect their entire collectible amount
   //       at once. In future, there are plans to allow lenders to only collect part of 
   //       collectible amount at any one time
-  mapping (address => uint) lenderCollected;
+  mapping (address => uint) lenderWithdrawn;
 
   /**
    * @dev A public function that retrieves the size of the getMarketPool actually

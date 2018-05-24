@@ -55,7 +55,7 @@ contract LoanTime is LoanIdentity {
   /** 
    * @dev Returns true if loan is currently in Collection Period, false otherwise
    */
-  function checkCollectionPeriod() public view returns (bool) {
+  function checkWithdrawPeriod() public view returns (bool) {
     uint start = settlementPeriodEnd();
     if (block.timestamp >= start) {
       return true;
@@ -88,15 +88,15 @@ contract LoanTime is LoanIdentity {
   /** 
    * @dev Fectches the current period of the loan
    */
-  function getPeriod() public view returns (bytes32) {
+  function stage() public view returns (uint8) {
     if (checkRequestPeriod()) {
-      return "request";
+      return 1;
     } else if (checkLoanPeriod()) {
-      return "loan";
+      return 2;
     } else if (checkSettlementPeriod()) {
-      return "settlement";
+      return 3;
     } else {
-      return "collection";
+      return 4;
     }
   }
 

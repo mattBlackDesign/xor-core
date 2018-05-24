@@ -45,7 +45,7 @@ contract Loan is LoanInterest {
     * @dev Triggered when a lender collects their collectible amount in collection
     *      period
     */
-    event Collected(address lender, uint amount);
+    event Withdrawn(address lender, uint amount);
     
   /*** GETTERS ***/    
   /**
@@ -58,8 +58,8 @@ contract Loan is LoanInterest {
     return (
       lenderOffers[_lender], 
       actualOffer, 
-      lenderCollected[_lender], 
-      getLenderCollectible(_lender),
+      lenderWithdrawn[_lender], 
+      getLenderWithdrawable(_lender),
       actualOffer.percent(getLoanPool(), 5)
     );
   }
@@ -109,7 +109,7 @@ contract Loan is LoanInterest {
    * @dev Retrieves the collectible amount for each lender from their investment/
    *      loan. Includes principal + interest - defaults.
    */
-  function getLenderCollectible(address _lender) public view returns (uint) {
+  function getLenderWithdrawable(address _lender) public view returns (uint) {
     return actualLenderOffer(_lender).mul(curRepaid).div(getLoanPool());
   }
 
@@ -128,12 +128,12 @@ contract Loan is LoanInterest {
   }
 
   /**
-   * @dev Returns true if given lender has collected their collectible
+   * @dev Returns true if given lender has withdrawn their collectible
    *      amount
    */
-  function collected(address _lender) public view returns (bool) {
-    if (getLenderCollectible(_lender) == lenderCollected[_lender] &&
-      lenderCollected[_lender] != 0) {
+  function withdrawn(address _lender) public view returns (bool) {
+    if (getLenderWithdrawable(_lender) == lenderWithdrawn[_lender] &&
+      lenderWithdrawn[_lender] != 0) {
       return true;
     } else {
       return false;
@@ -180,15 +180,15 @@ contract Loan is LoanInterest {
    * @dev Transfers collectible amount (interest + principal - defaults) to respective 
    *      lender
    */
-  function collectCollectible() 
-    external
-    isCollectionPeriod() isLender(msg.sender)
-    hasNotCollected(msg.sender) 
-  {
-    uint collectibleAmt = getLenderCollectible(msg.sender);
-    lenderCollected[msg.sender] = collectibleAmt;
-    msg.sender.transfer(collectibleAmt);
-    emit Collected(msg.sender, collectibleAmt);
+
+  function withdraw(address _to, uint256 _capital) public returns (bool success) {
+    require(checkWithdrawPeriod());
+    require(lender(msg.sender));
+    require(!withdrawn(msg.sender));
+    uint withdrawAmt = getLenderWithdrawable(msg.sender);
+    lenderWithdrawn[msg.sender] = withdrawAmt;
+    msg.sender.transfer(withdrawAmt);
+    emit Withdrawn(msg.sender, withdrawAmt);
   }
   
   /*** MODIFIERS ***/
@@ -209,18 +209,18 @@ contract Loan is LoanInterest {
   }
   
   /**
-   * @dev Throws if lender being checked has not collected their collectible amount
+   * @dev Throws if lender being checked has not withdrawn their collectible amount
    */
-  modifier hasCollected(address _lender) {
-    require (collected(_lender));
+  modifier hasWithdrawn(address _lender) {
+    require (withdrawn(_lender));
     _;
   }
 
   /**
-   * @dev Throws if lender being checked has collected their collectible amount
+   * @dev Throws if lender being checked has withdrawn their collectible amount
    */
-  modifier hasNotCollected(address _lender) {
-    require (!collected(_lender));
+  modifier hasNotWithdrawn(address _lender) {
+    require (!withdrawn(_lender));
     _;
   }
 
@@ -250,7 +250,7 @@ contract Loan is LoanInterest {
     return (
       borrowerRequests[_borrower],
       actualRequest,
-      borrowerWithdrawn[_borrower],
+      borrowerAccepted[_borrower],
       borrowerRepaid[_borrower],
       actualRequest.percent(getLoanPool(), 5)
     );
@@ -337,8 +337,8 @@ contract Loan is LoanInterest {
    *      loan request, false otherwise
    */
   function withdrawn(address _borrower) public view returns (bool) {
-    if (borrowerRequests[_borrower] == borrowerWithdrawn[_borrower]
-      && borrowerWithdrawn[_borrower] > 0) {
+    if (borrowerRequests[_borrower] == borrowerAccepted[_borrower]
+      && borrowerAccepted[_borrower] > 0) {
       return true;
     } else {
       return false;
@@ -381,17 +381,15 @@ contract Loan is LoanInterest {
   }
 
   /**
-   * @dev Withdraws requested amount to borrower's address from lending pool
+   * @dev Sends requested amount to borrower's address from lending pool
    */
-  function withdrawRequested()
-    external
-    isLoanPeriod()
-    isBorrower(msg.sender)
-    hasNotWithdrawn(msg.sender)
-  {
+  function accept() public returns (bool success) {
+    require(checkLoanPeriod());
+    require(borrower(msg.sender));
+    require(!withdrawn(_borrower));
     uint request = actualBorrowerRequest(msg.sender);
     msg.sender.transfer(request);
-    borrowerWithdrawn[msg.sender] = request;
+    borrowerAccepted[msg.sender] = request;
     curBorrowed = curBorrowed.add(request);
   }
   
@@ -400,17 +398,15 @@ contract Loan is LoanInterest {
    *      to lenders
    * @notice Partial repayments not supported at this time.
    */
-  function repay()
-    external
-    payable
-    isSettlementPeriod()
-    isBorrower(msg.sender)
-    hasNotRepaid(msg.sender)
-  {
+  function payback(address _from, uint256 _payment) public returns (bool success) {
+    require(checkSettlementPeriod());
+    require(borrower(msg.sender));
+    require(!repaid(msg.sender));
     curRepaid = curRepaid.add(msg.value);
     borrowerRepaid[msg.sender] = msg.value;
     addToRepayments(msg.sender, msg.value);
     emit LoanRepaid(msg.sender, msg.value);
+
   }
 
   /*** MODIFIERS ***/
