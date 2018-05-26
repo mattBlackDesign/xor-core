@@ -19,4 +19,3 @@ We'd love your help to help us make improvements and determine the future direct
 yarn install
 yarn test
 ```
-
