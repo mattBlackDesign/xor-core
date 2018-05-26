@@ -1,23 +1,23 @@
-pragma solidity ^0.4.21;
+// pragma solidity ^0.4.21;
 
-import "./LoanBase.sol";
+// import "./LoanBase.sol";
 
 
-/**
-  * @title ExampleMarketTrust
-  * @dev Example Market Trust contract for showing trust score programmability.
- */
-contract LoanGovernance is LoanBase {
+// /**
+//   * @title ExampleMarketTrust
+//   * @dev Example Market Trust contract for showing trust score programmability.
+//  */
+// contract LoanGovernance is LoanBase {
 
-  function createGovernance() public {
-    governanceContract.createGovernance();
-  }
+//   function createGovernance() public {
+//     governanceContract.createGovernance();
+//   }
 
-  function getGenesisProtocolContractAddress() external view returns(address) {
-    return governanceContract.getGenesisProtocolContractAddress();
-  }
+//   function getGenesisProtocolContractAddress() external view returns(address) {
+//     return governanceContract.getGenesisProtocolContractAddress();
+//   }
 
-  function getDOTTokenAddress() public view returns(address) {
-    return address(dotContract);
-  }
-}
+//   function getDOTTokenAddress() public view returns(address) {
+//     return address(dotContract);
+//   }
+// }

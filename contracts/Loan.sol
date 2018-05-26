@@ -20,7 +20,7 @@ contract Loan is LoanInterest {
     requestPeriod = _periodArray[0];
     loanPeriod = _periodArray[1];
     settlementPeriod = _periodArray[2];
-    governanceContract = LoanGovernanceInterface(_contractAddressesArray[0]);
+    // governanceContract = LoanGovernanceInterface(_contractAddressesArray[0]);
     trustContract = LoanTrustInterface(_contractAddressesArray[1]);
     interestContract = LoanInterestInterface(_contractAddressesArray[2]);
     dotContract = ERC827(_contractAddressesArray[3]);

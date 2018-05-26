@@ -9,8 +9,7 @@ contract LoanFactoryInterface {
 }
 
 contract DOTFactoryInterface {
-  function createDOT(string _name, string _symbol, uint _cap) public returns(address);
-  function getStrId(uint _str) public returns(bytes32);
+  function createDOT(uint _id, uint _cap) public returns(address);
 }
 
 /**
@@ -18,7 +17,7 @@ contract DOTFactoryInterface {
   * @dev Base contract for XOR Markets. Holds all common structs, events and base variables
  */
 
-contract Market is Destructible {
+contract MarketBase is Destructible {
 
   /*** EVENTS ***/
   /**
@@ -61,9 +60,15 @@ contract Market is Destructible {
 
   LoanFactoryInterface loanFactoryContract;
 
+  DOTFactoryInterface dotFactoryContract;
+
   function setLoanFactoryContractAddress(address _address) external {
     loanFactoryContract = LoanFactoryInterface(_address);
   }
+
+  function setDOTFactoryContractAddress(address _address) external {
+    dotFactoryContract = DOTFactoryInterface(_address);
+  } 
   /** 
    * @dev An external method that creates a new Market and stores it. This
    *      method doesn't do any checking and should only be called when the
@@ -71,7 +76,7 @@ contract Market is Destructible {
    *      Version 0 of Market being created.
    * @param _contractAddressesArray An array containing the addresses of instance
    *                               component contracts
-   *                               [governance, trust, interest]
+   *                               [governance, trust, interest, tokenAddress, dotAddresss]
    * @return MarketId of Market created, which is index of created Market within markets
    *         array
    */
@@ -81,7 +86,13 @@ contract Market is Destructible {
       _contractAddressesArray.length == 3);
     uint curMarketVer = 0;
     uint newMarketId = markets.push(Market(block.timestamp, curMarketVer)) - 1;
-    markets[newMarketId].loans[curMarketVer] = loanFactoryContract.createLoan(_periodArray, _contractAddressesArray);
+    address[] memory completeAddressesArray;
+    //completeAddressesArray[0] = _contractAddressesArray[0];
+    completeAddressesArray[0] = _contractAddressesArray[0];
+    completeAddressesArray[1] = _contractAddressesArray[1];
+    completeAddressesArray[2] = _contractAddressesArray[2];
+    completeAddressesArray[3] = dotFactoryContract.createDOT(newMarketId, 0);
+    markets[newMarketId].loans[curMarketVer] = loanFactoryContract.createLoan(_periodArray, completeAddressesArray);
     marketIndexToMaker[newMarketId] = msg.sender;
     emit NewMarket(newMarketId);
     return newMarketId;
