@@ -1,8 +1,10 @@
+pragma solidity ^0.4.21;
+
 import './ERC1068.sol';
 import 'openzeppelin-solidity/contracts/token/ERC827/ERC827.sol';
 
 contract LoanGovernanceInterface {
-  function createGovernance();
+  function createGovernance() public;
   function getGenesisProtocolContractAddress() external view returns(address);
 }
 
