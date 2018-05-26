@@ -13,7 +13,7 @@ contract LoanGovernance is LoanBase {
     governanceContract.createGovernance();
   }
 
-  function getGenesisProtocolContractAddress() public returns(address) {
+  function getGenesisProtocolContractAddress() external view returns(address) {
     return governanceContract.getGenesisProtocolContractAddress();
   }
 

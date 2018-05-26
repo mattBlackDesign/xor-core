@@ -32,7 +32,9 @@ contract Loan is LoanInterest {
   /**
    * @dev Triggered when a new lender enters market and offers a loan
    */
-  event LoanOffered(address lender, uint amount);
+  event Funded(address lender, uint amount);
+
+  event FundFailure(address lender);
   
   /**
    * @dev Triggered when a lender who has a refundable excess amount transfers
@@ -45,6 +47,8 @@ contract Loan is LoanInterest {
     *      period
     */
   event Withdrawn(address lender, uint amount);
+
+  event WithdrawFailure(address lender);
     
   /*** GETTERS ***/    
   /**
@@ -150,13 +154,21 @@ contract Loan is LoanInterest {
    * Previously offerLoan()
    */ 
   function fund(address _lender, uint256 _capital) public returns (bool success) {
-    require(checkRequestPeriod());
-    require(!lender(_lender));
-
-    lenders.push(msg.sender);
-    lenderOffers[msg.sender] = msg.value;
-    totalOffered = totalOffered.add(msg.value);
-    emit LoanOffered(msg.sender, msg.value);
+    if ((tokenContract.balanceOf(_lender) >= _capital) && 
+    (_capital <= tokenContract.allowance(_lender, this)) &&
+    checkRequestPeriod() && 
+    (!lender(_lender)) &&
+    _lender == msg.sender) {
+      lenders.push(_lender);
+      lenderOffers[_lender] = _capital;
+      totalOffered = totalOffered.add(_capital);
+      success = true;
+      tokenContract.transferFrom(_lender, this, _capital);
+      emit Funded(_lender, _capital);
+    } else {
+      success = false;
+      emit FundFailure(_lender);
+    } 
   }
 
   /**
@@ -171,23 +183,28 @@ contract Loan is LoanInterest {
   {
     require(lenderOffers[msg.sender] > 0);
     uint excessAmt = calculateExcess(msg.sender);
-    msg.sender.transfer(excessAmt);
+    tokenContract.transferFrom(this, msg.sender, excessAmt);
     emit ExcessTransferred(msg.sender, excessAmt);
   }
 
   /**
    * @dev Transfers collectible amount (interest + principal - defaults) to respective 
    *      lender
+   * TODO: implement ability to withdraw twice
    */
 
   function withdraw(address _to, uint256 _capital) public returns (bool success) {
-    require(checkWithdrawPeriod());
-    require(lender(msg.sender));
-    require(!withdrawn(msg.sender));
-    uint withdrawAmt = getLenderWithdrawable(msg.sender);
-    lenderWithdrawn[msg.sender] = withdrawAmt;
-    msg.sender.transfer(withdrawAmt);
-    emit Withdrawn(msg.sender, withdrawAmt);
+    if (checkWithdrawPeriod() && lender(_to) &&
+      (!withdrawn(_to)) && _to == msg.sender) {
+      uint withdrawAmt = getLenderWithdrawable(_to);
+      lenderWithdrawn[_to] = withdrawAmt;
+      success = true;
+      tokenContract.transferFrom(this, _to, withdrawAmt);
+      emit Withdrawn(_to, withdrawAmt);
+    } else {
+      success = false;
+      emit WithdrawFailure(_to);
+    }
   }
   
   /*** MODIFIERS ***/
@@ -228,12 +245,18 @@ contract Loan is LoanInterest {
   /**
    * @dev Triggered when a borrower enters market and requests a loan
    */
-  event LoanRequested(address borrower, uint amount);
+  event Requested(address borrower, uint amount);
 
   /**
    * @dev Triggered when a borrower has repaid his loan
    */
-  event LoanRepaid(address borrower, uint amount);
+  event PaidBack(address borrower, uint amount);
+
+  event PaybackFailure(address borrower);
+
+  event Accepted(address borrower, uint amount);
+
+  event AcceptFailure(address borrower);
   
   /*** GETTERS ***/
   /**
@@ -376,20 +399,25 @@ contract Loan is LoanInterest {
     borrowers.push(msg.sender);
     borrowerRequests[msg.sender] = _amount;
     totalRequested = totalRequested.add(_amount);
-    emit LoanRequested(msg.sender, _amount);
+    emit Requested(msg.sender, _amount);
   }
 
   /**
    * @dev Sends requested amount to borrower's address from lending pool
    */
   function accept() public returns (bool success) {
-    require(checkLoanPeriod());
-    require(borrower(msg.sender));
-    require(!accepted(msg.sender));
-    uint request = actualBorrowerRequest(msg.sender);
-    msg.sender.transfer(request);
-    borrowerAccepted[msg.sender] = request;
-    curBorrowed = curBorrowed.add(request);
+    if (checkLoanPeriod() && borrower(msg.sender) &&
+      (!accepted(msg.sender))) {
+      uint request = actualBorrowerRequest(msg.sender);
+      borrowerAccepted[msg.sender] = request;
+      curBorrowed = curBorrowed.add(request);
+      success = true;
+      tokenContract.transferFrom(this, msg.sender, request);
+      emit Accepted(msg.sender, request);
+    } else {
+      success = false;
+      emit AcceptFailure(msg.sender);
+    }
   }
   
   /**
@@ -398,14 +426,19 @@ contract Loan is LoanInterest {
    * @notice Partial repayments not supported at this time.
    */
   function payback(address _from, uint256 _payment) public returns (bool success) {
-    require(checkSettlementPeriod());
-    require(borrower(msg.sender));
-    require(!repaid(msg.sender));
-    curRepaid = curRepaid.add(msg.value);
-    borrowerRepaid[msg.sender] = msg.value;
-    addToRepayments(msg.sender, msg.value);
-    emit LoanRepaid(msg.sender, msg.value);
-
+    if (checkSettlementPeriod() && borrower(_from)
+      && (!repaid(_from)) && _from == msg.sender &&
+      (_payment <= tokenContract.allowance(_from, this))) {
+      curRepaid = curRepaid.add(_payment);
+      borrowerRepaid[_from] = _payment;
+      addToRepayments(_from, _payment);
+      success = true;
+      tokenContract.transferFrom(_from, this, _payment);
+      emit PaidBack(_from, _payment);
+    } else {
+      success = false;
+      emit PaybackFailure(_from);
+    }
   }
 
   /*** MODIFIERS ***/
