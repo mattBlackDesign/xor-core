@@ -3,10 +3,10 @@ pragma solidity ^0.4.21;
 import './ERC1068.sol';
 import 'openzeppelin-solidity/contracts/token/ERC827/ERC827.sol';
 
-contract LoanGovernanceInterface {
-  function createGovernance() public;
-  function getGenesisProtocolContractAddress() external view returns(address);
-}
+// contract LoanGovernanceInterface {
+//   function createGovernance() public;
+//   function getGenesisProtocolContractAddress() external view returns(address);
+// }
 
 /**
  * @title LoanTrustInterface
@@ -72,7 +72,7 @@ contract LoanBase is ERC1068 {
 
   // Address of external governance contract
   // address governanceContractAddress;
-  LoanGovernanceInterface governanceContract;
+  // LoanGovernanceInterface governanceContract;
 
   // Address of external trust contract
   LoanTrustInterface trustContract;
