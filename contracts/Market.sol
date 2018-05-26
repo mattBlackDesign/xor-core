@@ -18,7 +18,7 @@ contract DOTFactoryInterface {
   * @dev Base contract for XOR Markets. Holds all common structs, events and base variables
  */
 
-contract MarketBase is Destructible {
+contract Market is Destructible {
 
   /*** EVENTS ***/
   /**

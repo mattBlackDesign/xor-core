@@ -2,9 +2,9 @@ var Market = artifacts.require("./Market.sol");
 
 var ExampleMarketTrust = artifacts.require("xor-external-contract-examples/contracts/ExampleMarketTrust.sol");
 var ExampleMarketInterest = artifacts.require("xor-external-contract-examples/contracts/ExampleMarketInterest.sol");
-var ExampleMarketAvatar = artifacts.require("./ExampleMarketAvatar.sol");
-var ExampleMarketGovernance = artifacts.require("./ExampleMarketGovernance.sol");
-var LoanFactory = artificats.require("./LoanFactory.sol");
+var ExampleLoanAvatar = artifacts.require("./ExampleLoanAvatar.sol");
+var ExampleLoanGovernance = artifacts.require("./ExampleLoanGovernance.sol");
+var LoanFactory = artifacts.require("./LoanFactory.sol");
 var DOTFactory = artifacts.require("./DOTFactory.sol");
 var StringUtils = artifacts.require("./StringUtils.sol");
 
@@ -21,17 +21,15 @@ module.exports = function(deployer) {
     var dotFactory = await DOTFactory.deployed();
 
     market.setLoanFactoryContractAddress(loanFactory.address);
-    market.setMarketTokenContractAddress(dotFactory.address);
-    dotFactory.setMarketTokenContractAddress(market.address);
 
-    await deployer.deploy(ExampleMarketGovernance);
-    var exampleMarketGovernance = await ExampleMarketGovernance.deployed();
+    await deployer.deploy(ExampleLoanGovernance);
+    var exampleLoanGovernance = await ExampleLoanGovernance.deployed();
 
-    await deployer.deploy(ExampleMarketAvatar);
-    var exampleMarketAvatar = await ExampleMarketAvatar.deployed();
+    await deployer.deploy(ExampleLoanAvatar);
+    var exampleLoanAvatar = await ExampleLoanAvatar.deployed();
 
-    exampleMarketGovernance.setMarketAvatarContractAddress(exampleMarketAvatar.address);
-    exampleMarketGovernance.setMarketGovernanceContractAddress(market.address);
+    exampleLoanGovernance.setLoanAvatarContractAddress(exampleLoanAvatar.address);
+    exampleLoanGovernance.setLoanGovernanceContractAddress(market.address);
 
     await deployer.deploy(ExampleMarketTrust);
     await deployer.deploy(ExampleMarketInterest);
@@ -40,11 +38,11 @@ module.exports = function(deployer) {
     var exmapleMarketInterest = await ExampleMarketInterest.deployed();
 
     var arrContractAddresses = [
-      exampleMarketGovernance.address,
+      exampleLoanGovernance.address,
       exampleMarketTrust.address,
       exmapleMarketInterest.address
     ]
 
-    market.createMarket([5, 5, 5], arrContractAddresses);
+    // market.createMarket([5, 5, 5], arrContractAddresses);
   });
 };
