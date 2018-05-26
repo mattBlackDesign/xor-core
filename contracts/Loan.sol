@@ -113,7 +113,8 @@ contract Loan is LoanInterest {
    *      loan. Includes principal + interest - defaults.
    */
   function getLenderWithdrawable(address _lender) public view returns (uint) {
-    return actualLenderOffer(_lender).mul(curRepaid).div(getLoanPool());
+    uint temp = actualLenderOffer(_lender).mul(curRepaid).div(getLoanPool());
+    return temp.sub(lenderWithdrawn[_lender]);
   }
 
   
@@ -195,12 +196,12 @@ contract Loan is LoanInterest {
 
   function withdraw(address _to, uint256 _capital) public returns (bool success) {
     if (checkWithdrawPeriod() && lender(_to) &&
-      (!withdrawn(_to)) && _to == msg.sender) {
-      uint withdrawAmt = getLenderWithdrawable(_to);
-      lenderWithdrawn[_to] = withdrawAmt;
+      (!withdrawn(_to)) && (_to == msg.sender) &&
+      (_capital <= getLenderWithdrawable(_to))) {
+      lenderWithdrawn[_to] = lenderWithdrawn[_to].add(_capital);
       success = true;
-      tokenContract.transferFrom(this, _to, withdrawAmt);
-      emit Withdrawn(_to, withdrawAmt);
+      tokenContract.transferFrom(this, _to, _capital);
+      emit Withdrawn(_to, _capital);
     } else {
       success = false;
       emit WithdrawFailure(_to);
