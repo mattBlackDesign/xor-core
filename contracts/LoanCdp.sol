@@ -3,6 +3,7 @@ pragma solidity ^0.4.21;
 import "./LoanBase.sol";
 
 contract TubInterface {
+  function sai() public returns (address);
 	function join(uint wad) public;
 	function open() public returns (bytes32 cup);
 	function lock(bytes32 cup, uint wad) public;
@@ -35,18 +36,22 @@ contract LoanCdp is LoanBase {
   // }
 
   function join(uint wad) public {
-	tubContract.join(wad);
+  	tubContract.join(wad);
   }
 
   function open() public returns(bytes32 cup) {
-	tubContract.open();
+  	tubContract.open();
   }
 
   function lock(bytes32 cup, uint wad) public {
-	tubContract.lock(cup, wad);
+  	tubContract.lock(cup, wad);
   }
 
   function draw(bytes32 cup, uint wad) public {
-	tubContract.draw(cup, wad);
+  	tubContract.draw(cup, wad);
+  }
+
+  function sai() public returns (address) {
+    tubContract.sai();
   }
 }
