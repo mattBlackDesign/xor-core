@@ -12,6 +12,10 @@ contract DOTFactoryInterface {
   function createDOT(uint _id, uint _cap) public returns(address);
 }
 
+contract TubInterface {
+  function sai() public returns (address);
+}
+
 /**
   * @title MarketBase
   * @dev Base contract for XOR Markets. Holds all common structs, events and base variables
@@ -62,6 +66,9 @@ contract MarketBase is Destructible {
 
   DOTFactoryInterface dotFactoryContract;
 
+  TubInterface tubContract;
+
+
   function setLoanFactoryContractAddress(address _address) external {
     loanFactoryContract = LoanFactoryInterface(_address);
   }
@@ -69,6 +76,22 @@ contract MarketBase is Destructible {
   function setDOTFactoryContractAddress(address _address) external {
     dotFactoryContract = DOTFactoryInterface(_address);
   } 
+
+
+
+  function setTubContractAddress(address _address) external {
+    tubContract = TubInterface(_address);
+  }
+
+  function getTubContractAddress() external view returns(address) {
+    return address(tubContract);
+  }
+
+  function sai() public returns (address) {
+    tubContract.sai();
+  }
+
+
   /** 
    * @dev An external method that creates a new Market and stores it. This
    *      method doesn't do any checking and should only be called when the
