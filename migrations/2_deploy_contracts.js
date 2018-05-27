@@ -21,6 +21,7 @@ module.exports = function(deployer) {
     var dotFactory = await DOTFactory.deployed();
 
     market.setLoanFactoryContractAddress(loanFactory.address);
+    market.setDOTFactoryContractAddress(dotFactory.address);
 
     // await deployer.deploy(ExampleLoanGovernance);
     // var exampleLoanGovernance = await ExampleLoanGovernance.deployed();
