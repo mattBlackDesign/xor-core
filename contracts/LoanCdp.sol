@@ -10,10 +10,10 @@ contract TubInterface {
 	function draw(bytes32 cup, uint wad) public;
 }
 
-// contract WethInterface {
-// 	function deposit() public payable;
-// 	function approve(address guy, uint wad) public returns (bool);
-// }
+contract WethInterface {
+	function deposit() public payable;
+	function approve(address guy, uint wad) public returns (bool);
+}
 
 contract LoanCdp is LoanBase {
 	TubInterface tubContract;
@@ -27,13 +27,13 @@ contract LoanCdp is LoanBase {
     return address(tubContract);
   }
 
-  // function setWethContractAddress(address _address) external {
-  //   wethContract = WethInterface(_address);
-  // }
+  function setWethContractAddress(address _address) external {
+    wethContract = WethInterface(_address);
+  }
 
-  // function getWethContractAddress() external view returns(address) {
-  //   return address(wethContract);
-  // }
+  function getWethContractAddress() external view returns(address) {
+    return address(wethContract);
+  }
 
   function join(uint wad) public {
   	tubContract.join(wad);
