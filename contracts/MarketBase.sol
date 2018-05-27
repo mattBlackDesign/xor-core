@@ -77,8 +77,6 @@ contract MarketBase is Destructible {
     dotFactoryContract = DOTFactoryInterface(_address);
   } 
 
-
-
   function setTubContractAddress(address _address) external {
     tubContract = TubInterface(_address);
   }
