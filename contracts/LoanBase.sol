@@ -118,4 +118,36 @@ contract LoanBase is ERC1068 {
       return totalOffered;
     }
   }
+
+  function getLoan()
+    public
+    view
+    returns
+  (
+    uint,
+    uint,
+    uint,
+    uint,
+    uint,
+    uint,
+    uint,
+    uint,
+    uint,
+    uint,
+    address[4]
+  ) {
+    return (
+      updatedAt,
+      requestPeriod,
+      loanPeriod,
+      settlementPeriod,
+      totalOffered,
+      totalRequested,
+      curBorrowed,
+      curRepaid,
+      lenders.length,
+      borrowers.length,
+      [address(dotContract), address(tokenContract), address(trustContract), address(interestContract)]
+    );
+  }
 }

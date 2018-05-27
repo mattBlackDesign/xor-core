@@ -91,6 +91,9 @@ contract MarketBase is Destructible {
     tubContract.sai();
   }
 
+  function getMarketLoan(uint _marketId) public returns (address) {
+    return markets[_marketId].loans[markets[_marketId].curVersion];
+  }
 
   /** 
    * @dev An external method that creates a new Market and stores it. This
