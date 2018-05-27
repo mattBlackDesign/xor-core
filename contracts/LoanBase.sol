@@ -38,7 +38,7 @@ contract LoanInterestInterface {
 
 
 contract LoanBase is ERC1068 {
-	ERC827 dotContract;
+	MintableToken dotContract;
 	ERC827 tokenContract;
 
   // Time in Linux Epoch Time of Version creation
