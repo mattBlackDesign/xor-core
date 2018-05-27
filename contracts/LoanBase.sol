@@ -2,6 +2,7 @@ pragma solidity ^0.4.21;
 
 import './ERC1068.sol';
 import 'openzeppelin-solidity/contracts/token/ERC827/ERC827.sol';
+import 'openzeppelin-solidity/contracts/token/ERC20/MintableToken.sol';
 
 // contract LoanGovernanceInterface {
 //   function createGovernance() public;
