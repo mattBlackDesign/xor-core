@@ -95,6 +95,13 @@ contract MarketBase is Destructible {
     return markets[_marketId].loans[markets[_marketId].curVersion];
   }
 
+  /**
+   * @dev A public function that retrieves the number of markets currently on XOR
+   */
+  function getMarketCount() public view returns (uint) {
+    return markets.length;
+  }
+
   /** 
    * @dev An external method that creates a new Market and stores it. This
    *      method doesn't do any checking and should only be called when the
