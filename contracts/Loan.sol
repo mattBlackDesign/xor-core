@@ -67,6 +67,10 @@ contract Loan is LoanInterest {
     );
   }
 
+  function getLenderAddress(uint _index) public view returns (address) {
+    return lenders[_index];
+  }
+
   /**
    * @dev Calculates any excess lender funds that are not part of the market
    *      pool (when total amount offered > total amount requested)
@@ -340,6 +344,10 @@ contract Loan is LoanInterest {
       }
     }
     return index;
+  }
+
+  function getBorrowerAddress(uint _index) public view returns (address) {
+    return borrowers[_index];
   }
 
   /**
