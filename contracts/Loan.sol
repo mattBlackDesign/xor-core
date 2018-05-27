@@ -23,7 +23,7 @@ contract Loan is LoanInterest {
     // governanceContract = LoanGovernanceInterface(_contractAddressesArray[0]);
     trustContract = LoanTrustInterface(_contractAddressesArray[0]);
     interestContract = LoanInterestInterface(_contractAddressesArray[1]);
-    dotContract = ERC827(_contractAddressesArray[2]);
+    dotContract = MintableToken(_contractAddressesArray[2]);
     tokenContract = ERC827(_contractAddressesArray[3]);
   }
 
