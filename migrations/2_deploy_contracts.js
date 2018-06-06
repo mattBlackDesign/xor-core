@@ -8,6 +8,8 @@ var LoanFactory = artifacts.require("./LoanFactory.sol");
 var DOTFactory = artifacts.require("./DOTFactory.sol");
 var StringUtils = artifacts.require("./StringUtils.sol");
 
+var Token = artifacts.require("./Token.sol");
+
 module.exports = function(deployer) {
   deployer.then(async () => {
     await deployer.deploy(StringUtils);
@@ -45,5 +47,7 @@ module.exports = function(deployer) {
     ]
 
     // market.createMarket([5, 5, 5], arrContractAddresses);
+
+    await deployer.deploy(Token, "Token", "TOK", 100000);
   });
 };
