@@ -17,7 +17,7 @@ contract WethInterface {
 
 contract LoanCdp is LoanBase {
 	TubInterface tubContract;
-	// WethInterface wethContract;
+	WethInterface wethContract;
 
   function setTubContractAddress(address _address) external {
     tubContract = TubInterface(_address);
