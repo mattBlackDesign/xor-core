@@ -16,7 +16,7 @@ contract Loan is LoanInterest {
    *                               component contracts
    *                               [governance, trust, interest, dotAddress, tokenAddress]
    */
-  function Loan(uint[] _periodArray, address[] _contractAddressesArray) public {
+  function Loan(uint[] _periodArray, address[] _contractAddressesArray, address dotAddress) public {
     requestPeriod = _periodArray[0];
     loanPeriod = _periodArray[1];
     settlementPeriod = _periodArray[2];
@@ -24,7 +24,7 @@ contract Loan is LoanInterest {
     trustContract = LoanTrustInterface(_contractAddressesArray[0]);
     interestContract = LoanInterestInterface(_contractAddressesArray[1]);
     dotContract = MintableToken(_contractAddressesArray[2]);
-    tokenContract = ERC827(_contractAddressesArray[3]);
+    tokenContract = ERC827(dotAddress);
   }
 
 

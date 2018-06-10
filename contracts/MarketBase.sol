@@ -5,7 +5,7 @@ import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
 
 contract LoanFactoryInterface {
   // returns address of loan created (the contract)
-  function createLoan(uint[] _periodArray, address[] _contractAddressesArray) public returns(address);
+  function createLoan(uint[] _periodArray, address[] _contractAddressesArray, address dotAddress) public returns(address);
 }
 
 contract DOTFactoryInterface {
@@ -29,6 +29,8 @@ contract MarketBase is Destructible {
    * NOTE: Might not be necessary
    */
   event NewMarket(uint marketId);
+
+  event LogAddress(address contractAddress);
 
   /**
    * @dev Triggered when a new version of a market has been launched.
@@ -117,13 +119,18 @@ contract MarketBase is Destructible {
       _contractAddressesArray.length == 3);
     uint curMarketVer = 0;
     uint newMarketId = markets.push(Market(block.timestamp, curMarketVer)) - 1;
-    address[] memory completeAddressesArray;
-    //completeAddressesArray[0] = _contractAddressesArray[0];
-    completeAddressesArray[0] = _contractAddressesArray[0];
-    completeAddressesArray[1] = _contractAddressesArray[1];
-    completeAddressesArray[2] = _contractAddressesArray[2];
-    completeAddressesArray[3] = dotFactoryContract.createDOT(newMarketId, 0);
-    markets[newMarketId].loans[curMarketVer] = loanFactoryContract.createLoan(_periodArray, completeAddressesArray);
+    // address[] completeAddressesArray;
+    // //completeAddressesArray[0] = _contractAddressesArray[0];
+    // completeAddressesArray.push(_contractAddressesArray[0]);
+    // completeAddressesArray.push(_contractAddressesArray[1]);
+    // completeAddressesArray.push(_contractAddressesArray[2]);
+    address dotAddress =  dotFactoryContract.createDOT(newMarketId, 0);
+    // completeAddressesArray[0] = _contractAddressesArray[0];
+    // completeAddressesArray[1] = _contractAddressesArray[1];
+    // completeAddressesArray[2] = _contractAddressesArray[2];
+    // completeAddressesArray[3] = dotFactoryContract.createDOT(newMarketId, 0);
+    emit LogAddress(address(loanFactoryContract));
+    markets[newMarketId].loans[curMarketVer] = loanFactoryContract.createLoan(_periodArray, _contractAddressesArray, dotAddress);
     marketIndexToMaker[newMarketId] = msg.sender;
     emit NewMarket(newMarketId);
     return newMarketId;
