@@ -25,6 +25,7 @@ contract Loan is LoanInterest {
     interestContract = LoanInterestInterface(_contractAddressesArray[1]);
     dotContract = MintableToken(_contractAddressesArray[2]);
     tokenContract = ERC827(dotAddress);
+    updatedAt = block.timestamp;
   }
 
 
