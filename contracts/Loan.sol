@@ -159,7 +159,7 @@ contract Loan is LoanInterest {
    *         requested
    * Previously offerLoan()
    */ 
-  function fund(address _lender) public payable returns (bool success) {
+  function fund(address _lender, uint256 _capital) public returns (bool success) {
     // if ((tokenContract.balanceOf(_lender) >= _capital) &&
     // (_capital <= tokenContract.allowance(_lender, this)) &&
     // checkRequestPeriod() &&
