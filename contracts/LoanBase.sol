@@ -68,8 +68,6 @@ contract LoanBase is ERC1068 {
   // Amount repaid by borrowers at a given time (in Wei)
   uint curRepaid;
 
-  uint riskConstant;
-
   // Array of all lenders participating in the market
   address[] lenders; 
   
@@ -149,7 +147,6 @@ contract LoanBase is ERC1068 {
       totalRequested,
       curBorrowed,
       curRepaid,
-      riskConstant,
       lenders.length,
       borrowers.length,
       [address(dotContract), address(tokenContract), address(trustContract), address(interestContract)]
