@@ -5,7 +5,7 @@ import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
 
 contract LoanFactoryInterface {
   // returns address of loan created (the contract)
-  function createLoan(uint[] _periodArray, uint _riskConstant, address[] _contractAddressesArray, address dotAddress) public returns(address);
+  function createLoan(uint[] _periodArray, address[] _contractAddressesArray, address dotAddress) public returns(address);
 }
 
 contract DOTFactoryInterface {
@@ -113,7 +113,7 @@ contract MarketBase is Destructible {
    * @return MarketId of Market created, which is index of created Market within markets
    *         array
    */
-  function createMarket(uint[] _periodArray, uint _riskConstant, address[] _contractAddressesArray) public returns (uint) {
+  function createMarket(uint[] _periodArray, address[] _contractAddressesArray) public returns (uint) {
     require(_periodArray.length == 3 && _periodArray[0] > 0
       && _periodArray[1] > 0 && _periodArray[2] > 0 &&
       _contractAddressesArray.length == 3);
@@ -129,7 +129,7 @@ contract MarketBase is Destructible {
     // completeAddressesArray[1] = _contractAddressesArray[1];
     // completeAddressesArray[2] = _contractAddressesArray[2];
     // completeAddressesArray[3] = dotFactoryContract.createDOT(newMarketId, 0);
-    markets[newMarketId].loans[curMarketVer] = loanFactoryContract.createLoan(_periodArray, _riskConstant, _contractAddressesArray, dotAddress);
+    markets[newMarketId].loans[curMarketVer] = loanFactoryContract.createLoan(_periodArray, _contractAddressesArray, dotAddress);
     emit LogAddress(markets[newMarketId].loans[curMarketVer]);
     marketIndexToMaker[newMarketId] = msg.sender;
     emit NewMarket(newMarketId);
