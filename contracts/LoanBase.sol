@@ -39,9 +39,6 @@ contract LoanInterestInterface {
 
 
 contract LoanBase is ERC1068 {
-	MintableToken dotContract;
-	ERC827 tokenContract;
-
   // Time in Linux Epoch Time of Version creation
   uint updatedAt; 
 
@@ -71,6 +68,14 @@ contract LoanBase is ERC1068 {
   // Amount repaid by borrowers at a given time (in Wei)
   uint curRepaid;
 
+  uint riskConstant;
+
+  // Array of all lenders participating in the market
+  address[] lenders; 
+  
+  // Array of all borrowers participating in the market
+  address[] borrowers; 
+
   // Address of external governance contract
   // address governanceContractAddress;
   // LoanGovernanceInterface governanceContract;
@@ -81,11 +86,8 @@ contract LoanBase is ERC1068 {
   // Address of external interest contract
   LoanInterestInterface interestContract;
 
-  // Array of all lenders participating in the market
-  address[] lenders; 
-  
-  // Array of all borrowers participating in the market
-  address[] borrowers; 
+	MintableToken dotContract;
+	ERC827 tokenContract;
 
   // Mapping of each lender (their address) to the size of their loan offer
   // (in Wei); amount put forward by each lender
