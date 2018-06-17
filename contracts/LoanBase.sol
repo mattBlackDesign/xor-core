@@ -20,7 +20,7 @@ contract LoanTrustInterface {
   *      their interest payment
   * @param _address Address of individual being checked
   */ 
-  function getTrustScore(address _address) external view returns (uint);
+  function getTrustScore(address _address, address _loanAddress) external view returns (uint);
 }
 
 /**
@@ -34,7 +34,7 @@ contract LoanInterestInterface {
    * @param _address Address of individual being checked
    * @param _amt The amount being requested by borrower in current market
    */ 
-  function getInterest(address _address, uint _amt) external view returns (uint);
+  function getInterest(address _address, uint _amt, address _loanAddress) external view returns (uint);
 }
 
 
