@@ -437,7 +437,7 @@ contract Loan is LoanInterest {
     }
   }
 
-  function withdrawRequested(uint _marketId)
+  function withdrawRequested()
     external
   {
     if (checkLoanPeriod() && borrower(msg.sender) &&
