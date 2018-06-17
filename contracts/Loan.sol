@@ -176,6 +176,14 @@ contract Loan is LoanInterest {
     // }
   }
 
+  function offerLoan(address _lender) public payable returns (bool success) {
+    lenders.push(_lender);
+    lenderOffers[_lender] = msg.value;
+    totalOffered = totalOffered.add(msg.value);
+    success = true;
+    emit Funded(_lender, msg.value);
+  }
+
   /**
    * @dev Called by lenders who have been removed. Transfers excess amount exceeding
    *      market pool back to them.
