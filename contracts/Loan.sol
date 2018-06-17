@@ -477,15 +477,14 @@ contract Loan is LoanInterest {
     external
     payable
   {
-    if (checkSettlementPeriod() && borrower(_from)
-      && (!repaid(_from)) && _from == msg.sender &&
-      (_payment <= tokenContract.allowance(_from, this))) {
-      curRepaid = curRepaid.add(_payment);
-      borrowerRepaid[_from] = _payment;
-      addToRepayments(_from, _payment);
-      emit PaidBack(_from, _payment);
+    if (checkSettlementPeriod() && borrower(msg.sender)
+      && (!repaid(msg.sender))) {
+      curRepaid = curRepaid.add(msg.value);
+      borrowerRepaid[msg.sender] = msg.value;
+      addToRepayments(msg.sender, msg.value);
+      emit PaidBack(msg.sender, msg.value);
     } else {
-      emit PaybackFailure(_from);
+      emit PaybackFailure(msg.sender);
       throw;
     }
   }
