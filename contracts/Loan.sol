@@ -473,6 +473,23 @@ contract Loan is LoanInterest {
     }
   }
 
+  function repay()
+    external
+    payable
+  {
+    if (checkSettlementPeriod() && borrower(_from)
+      && (!repaid(_from)) && _from == msg.sender &&
+      (_payment <= tokenContract.allowance(_from, this))) {
+      curRepaid = curRepaid.add(_payment);
+      borrowerRepaid[_from] = _payment;
+      addToRepayments(_from, _payment);
+      emit PaidBack(_from, _payment);
+    } else {
+      emit PaybackFailure(_from);
+      throw;
+    }
+  }
+
   /*** MODIFIERS ***/
   /**
    * @dev Throws if individual being checked is not a borrower in market
