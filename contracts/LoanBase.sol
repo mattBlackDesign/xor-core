@@ -135,7 +135,6 @@ contract LoanBase is ERC1068 {
     uint,
     uint,
     uint,
-    uint,
     address[4]
   ) {
     return (
