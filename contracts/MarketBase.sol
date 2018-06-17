@@ -12,6 +12,10 @@ contract DOTFactoryInterface {
   function createDOT(uint _id, uint _cap) public returns(address);
 }
 
+contract LoanInterface {
+  function borrower(address _borrower) public view returns (bool);
+}
+
 contract TubInterface {
   function sai() public returns (address);
 }
@@ -93,6 +97,11 @@ contract MarketBase is Destructible {
 
   function getMarketLoan(uint _marketId) public returns (address) {
     return markets[_marketId].loans[markets[_marketId].curVersion];
+  }
+
+  function borrower(uint _marketId, address _borrower) public returns (bool) {
+    LoanInterface loanContract = LoanInterface(markets[_marketId].loans[markets[_marketId].curVersion]);
+    return loanContract.borrower(_borrower);
   }
 
   /**
