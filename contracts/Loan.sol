@@ -189,14 +189,25 @@ contract Loan is LoanInterest {
    *      market pool back to them.
    * TODO: try catch for when person calling is not lender
    */
-  function transferExcess() 
-    external 
+  // function transferExcess() 
+  //   external 
+  //   isLender(msg.sender)
+  //   isAfterRequestPeriod() 
+  // {
+  //   require(lenderOffers[msg.sender] > 0);
+  //   uint excessAmt = calculateExcess(msg.sender);
+  //   tokenContract.transferFrom(this, msg.sender, excessAmt);
+  //   emit ExcessTransferred(msg.sender, excessAmt);
+  // }
+
+  function transferExcess()
+    external
     isLender(msg.sender)
-    isAfterRequestPeriod() 
+    isAfterRequestPeriod()
   {
     require(lenderOffers[msg.sender] > 0);
     uint excessAmt = calculateExcess(msg.sender);
-    tokenContract.transferFrom(this, msg.sender, excessAmt);
+    msg.sender.transfer(excessAmt);
     emit ExcessTransferred(msg.sender, excessAmt);
   }
 
@@ -217,6 +228,20 @@ contract Loan is LoanInterest {
     } else {
       success = false;
       emit WithdrawFailure(_to);
+    }
+  }
+
+  function collectCollectible()
+    external
+  {
+    if (checkWithdrawPeriod() && lender(msg.sender) &&
+      (!withdrawn(msg.sender))) {
+      lenderWithdrawn[msg.sender] = lenderWithdrawn[msg.sender].add(msg.value);
+      msg.sender.transfer(getLenderWithdrawable(msg.sender));
+      emit Withdrawn(msg.sender, msg.value);
+    } else {
+      emit WithdrawFailure(msg.sender);
+      throw;
     }
   }
   
