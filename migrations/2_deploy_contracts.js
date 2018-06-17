@@ -10,6 +10,8 @@ var StringUtils = artifacts.require("./StringUtils.sol");
 
 var Token = artifacts.require("./Token.sol");
 
+var Loan = artifacts.require("./Loan.sol");
+
 module.exports = function(deployer) {
   deployer.then(async () => {
     await deployer.deploy(StringUtils);
@@ -40,14 +42,21 @@ module.exports = function(deployer) {
     var exampleLoanTrust = await ExampleLoanTrust.deployed();
     var exampleLoanInterest = await ExampleLoanInterest.deployed();
 
-    var arrContractAddresses = [
-      // exampleLoanGovernance.address,
-      exampleLoanTrust.address,
-      exampleLoanInterest.address
-    ]
-
     // market.createMarket([5, 5, 5], arrContractAddresses);
 
     await deployer.deploy(Token, "Token", "TOK", 100000);
+
+    var token = await Token.deployed();
+
+    var periodArray = [60 * 2, 60 * 2, 60 * 2];
+
+    var arrContractAddresses = [
+      // exampleLoanGovernance.address,
+      exampleLoanTrust.address,
+      exampleLoanInterest.address,
+      token.address
+    ]
+
+    // await deployer.deploy(Loan, periodArray, arrContractAddresses);
   });
 };

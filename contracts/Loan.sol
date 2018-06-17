@@ -436,6 +436,21 @@ contract Loan is LoanInterest {
       emit AcceptFailure(msg.sender);
     }
   }
+
+  function withdrawRequested(uint _marketId)
+    external
+  {
+    if (checkLoanPeriod() && borrower(msg.sender) &&
+      (!accepted(msg.sender))) {
+      uint request = actualBorrowerRequest(msg.sender);
+      borrowerAccepted[msg.sender] = request;
+      curBorrowed = curBorrowed.add(request);
+      msg.sender.transfer(request);
+      emit Accepted(msg.sender, request);
+    } else {
+      throw;
+    }
+  }
   
   /**
    * @dev Repays principal and interest back to "repayment pool" to be distributed
