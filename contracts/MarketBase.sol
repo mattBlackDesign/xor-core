@@ -14,6 +14,7 @@ contract DOTFactoryInterface {
 
 contract LoanInterface {
   function borrower(address _borrower) public view returns (bool);
+  function lender(address _lender) public view returns (bool);
 }
 
 contract TubInterface {
@@ -102,6 +103,11 @@ contract MarketBase is Destructible {
   function borrower(uint _marketId, address _borrower) public returns (bool) {
     LoanInterface loanContract = LoanInterface(markets[_marketId].loans[markets[_marketId].curVersion]);
     return loanContract.borrower(_borrower);
+  }
+
+  function lender(uint _marketId, address _lender) public returns (bool) {
+    LoanInterface loanContract = LoanInterface(markets[_marketId].loans[markets[_marketId].curVersion]);
+    return loanContract.lender(_lender);
   }
 
   /**
