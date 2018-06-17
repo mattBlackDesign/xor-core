@@ -137,6 +137,7 @@ contract LoanBase is ERC1068 {
     uint,
     uint,
     uint,
+    uint,
     address[4]
   ) {
     return (
@@ -148,9 +149,18 @@ contract LoanBase is ERC1068 {
       totalRequested,
       curBorrowed,
       curRepaid,
+      riskConstant,
       lenders.length,
       borrowers.length,
       [address(dotContract), address(tokenContract), address(trustContract), address(interestContract)]
     );
+  }
+
+  function getLoanLenders() public view returns(address[]) {
+    return lenders;
+  }
+
+  function getLoanBorrowers() public view returns(address[]) {
+    return borrowers;
   }
 }
