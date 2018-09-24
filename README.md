@@ -17,6 +17,9 @@ We'd love your help to help us make improvements and determine the future direct
 
 ```sh
 yarn install
+```
+Ask a member of the XOR team for a copy of `truffle-config.js` configuration file.
+```sh
 yarn test
 ```
 
