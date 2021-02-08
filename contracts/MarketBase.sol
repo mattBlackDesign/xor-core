@@ -134,16 +134,7 @@ contract MarketBase is Destructible {
       _contractAddressesArray.length == 3);
     uint curMarketVer = 0;
     uint newMarketId = markets.push(Market(block.timestamp, curMarketVer)) - 1;
-    // address[] completeAddressesArray;
-    // //completeAddressesArray[0] = _contractAddressesArray[0];
-    // completeAddressesArray.push(_contractAddressesArray[0]);
-    // completeAddressesArray.push(_contractAddressesArray[1]);
-    // completeAddressesArray.push(_contractAddressesArray[2]);
     address dotAddress =  dotFactoryContract.createDOT(newMarketId, 0);
-    // completeAddressesArray[0] = _contractAddressesArray[0];
-    // completeAddressesArray[1] = _contractAddressesArray[1];
-    // completeAddressesArray[2] = _contractAddressesArray[2];
-    // completeAddressesArray[3] = dotFactoryContract.createDOT(newMarketId, 0);
     markets[newMarketId].loans[curMarketVer] = loanFactoryContract.createLoan(_periodArray, _contractAddressesArray, dotAddress);
     emit LogAddress(markets[newMarketId].loans[curMarketVer]);
     marketIndexToMaker[newMarketId] = msg.sender;

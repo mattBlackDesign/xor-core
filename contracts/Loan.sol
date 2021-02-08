@@ -20,11 +20,10 @@ contract Loan is LoanInterest {
     requestPeriod = _periodArray[0];
     loanPeriod = _periodArray[1];
     settlementPeriod = _periodArray[2];
-    // governanceContract = LoanGovernanceInterface(_contractAddressesArray[0]);
     trustContract = LoanTrustInterface(_contractAddressesArray[0]);
     interestContract = LoanInterestInterface(_contractAddressesArray[1]);
-    dotContract = MintableToken(_contractAddressesArray[2]);
-    tokenContract = ERC827(dotAddress);
+    tokenContract = ERC827(_contractAddressesArray[2]);
+    dotContract = MintableToken(dotAddress);
     updatedAt = block.timestamp;
   }
 
@@ -160,20 +159,21 @@ contract Loan is LoanInterest {
    * Previously offerLoan()
    */ 
   function fund(address _lender, uint256 _capital) public returns (bool success) {
-    // if ((tokenContract.balanceOf(_lender) >= _capital) &&
-    // (_capital <= tokenContract.allowance(_lender, this)) &&
-    // checkRequestPeriod() &&
-    // (!lender(_lender)) &&
-    // _lender == msg.sender) {
-    lenders.push(_lender);
-    lenderOffers[_lender] = msg.value;
-    totalOffered = totalOffered.add(msg.value);
-    success = true;
-    emit Funded(_lender, msg.value);
-    // } else {
-    //   success = false;
-    //   emit FundFailure(_lender);
-    // }
+    if ((tokenContract.balanceOf(_lender) >= _capital) &&
+    (_capital <= tokenContract.allowance(_lender, address(this))) &&
+    checkRequestPeriod() &&
+    (lender(_lender) == false) &&
+    _lender == msg.sender) {
+      lenders.push(_lender);
+      lenderOffers[_lender] = _capital;
+      totalOffered = totalOffered.add(_capital);
+      tokenContract.transferFrom(_lender, address(this), _capital);
+      success = true;
+      emit Funded(_lender, _capital);
+    } else {
+      success = false;
+      emit FundFailure(_lender);
+    }
   }
 
   function offerLoan(address _lender) public payable returns (bool success) {
@@ -223,7 +223,7 @@ contract Loan is LoanInterest {
       (_capital <= getLenderWithdrawable(_to))) {
       lenderWithdrawn[_to] = lenderWithdrawn[_to].add(_capital);
       success = true;
-      tokenContract.transferFrom(this, _to, _capital);
+      tokenContract.transfer(_to, _capital);
       emit Withdrawn(_to, _capital);
     } else {
       success = false;
@@ -432,6 +432,7 @@ contract Loan is LoanInterest {
    *         (and thus not receive their loan) if total amount requested > total amount 
    *         offered
    */ 
+  // TODO Remove requestLoan (Deprecated)
   function requestLoan(uint _amount)
     external
     isRequestPeriod()
@@ -444,17 +445,29 @@ contract Loan is LoanInterest {
     emit Requested(msg.sender, _amount);
   }
 
+  function request(uint256 _capital)
+    external
+    isRequestPeriod()
+    isNotBorrower(msg.sender)
+    isNotLender(msg.sender)
+  {
+    borrowers.push(msg.sender);
+    borrowerRequests[msg.sender] = _capital;
+    totalRequested = totalRequested.add(_capital);
+    emit Requested(msg.sender, _capital);
+  }
+
   /**
    * @dev Sends requested amount to borrower's address from lending pool
    */
   function accept() public returns (bool success) {
     if (checkLoanPeriod() && borrower(msg.sender) &&
-      (!accepted(msg.sender))) {
+      (accepted(msg.sender) == false)) {
       uint request = actualBorrowerRequest(msg.sender);
       borrowerAccepted[msg.sender] = request;
       curBorrowed = curBorrowed.add(request);
+      tokenContract.transfer(msg.sender, request);
       success = true;
-      tokenContract.transferFrom(this, msg.sender, request);
       emit Accepted(msg.sender, request);
     } else {
       success = false;
@@ -485,12 +498,12 @@ contract Loan is LoanInterest {
   function payback(address _from, uint256 _payment) public returns (bool success) {
     if (checkSettlementPeriod() && borrower(_from)
       && (!repaid(_from)) && _from == msg.sender &&
-      (_payment <= tokenContract.allowance(_from, this))) {
+      (_payment <= tokenContract.allowance(_from, address(this)))) {
       curRepaid = curRepaid.add(_payment);
       borrowerRepaid[_from] = _payment;
       addToRepayments(_from, _payment);
       success = true;
-      tokenContract.transferFrom(_from, this, _payment);
+      tokenContract.transferFrom(_from, address(this), _payment);
       emit PaidBack(_from, _payment);
     } else {
       success = false;

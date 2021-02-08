@@ -10,7 +10,7 @@ var Token = artifacts.require("./Token.sol");
 
 var Loan = artifacts.require("./Loan.sol");
 
-module.exports = function(deployer) {
+module.exports = function(deployer, accounts) {
   deployer.then(async () => {
     await deployer.deploy(StringUtils);
     await deployer.deploy(Market);
